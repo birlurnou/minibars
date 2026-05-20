@@ -505,7 +505,7 @@ $total_rights = count($all_rights);
             currentUsername = login;
             modalTitle.textContent = 'РЕДАКТИРОВАНИЕ';
             modalLogin.value = login;
-            modalLogin.disabled = true;
+            modalLogin.disabled = true; // закоментировать, если нужно открыть изменение логина
             modalPassword.value = allUsers[login].password;
             renderRightsCheckboxes(allUsers[login].access);
             modal.style.display = 'flex';
