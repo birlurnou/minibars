@@ -1,1 +1,41 @@
-
+{
+    "super": {
+        "password": "123",
+        "access": [
+            "excise",
+            "depatchers",
+            "deadlines",
+            "history",
+            "gih",
+            "empty",
+            "calculator",
+            "education",
+            "settings",
+            "excise_input"
+        ]
+    },
+    "test1": {
+        "password": "123",
+        "access": [
+            "excise",
+            "depatchers",
+            "deadlines",
+            "history",
+            "gih"
+        ]
+    },
+    "test2": {
+        "password": "123",
+        "access": [
+            "empty",
+            "calculator",
+            "education",
+            "settings",
+            "excise_input"
+        ]
+    },
+    "test0": {
+        "password": "123",
+        "access": []
+    }
+}
