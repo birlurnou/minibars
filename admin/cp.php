@@ -1,10 +1,19 @@
 <?php
+require_once 'encryption_key.php';
+
 $users_file = '../config/users.json';
 
 function loadUsers($file) {
     if (!file_exists($file)) return [];
     $content = file_get_contents($file);
-    return json_decode($content, true);
+    $users = json_decode($content, true);
+
+    foreach ($users as &$user) {
+        if (isset($user['password'])) {
+            $user['password'] = decryptPassword($user['password']);
+        }
+    }
+    return $users;
 }
 
 $users = loadUsers($users_file);
