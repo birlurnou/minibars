@@ -1,3 +1,13 @@
+<?php
+session_start();
+if (!isset($_SESSION['user'])) {
+    header('Location: login.php');
+    exit;
+}
+$user_tabs = $_SESSION['access'];
+//$active_tab = null;
+?>
+
 <!DOCTYPE html>
 
 <html lang="ru">
@@ -353,6 +363,9 @@ function updateGIHRoomsSummary() {
   apply();
 })();</script>
 <style>
+    /*#accises-section, #sroki-section, #gih-section, #dispatchers-section, #emptied-section, #settings-section, #learning-section, #history-section {
+        display: none !important;
+    }*/
     @media (min-width: 921px) {
         nav, .nav {
             position: fixed !important;
@@ -2815,23 +2828,61 @@ min-height: 18px;
 <!-- LEFT NAV (desktop) -->
 <nav aria-hidden="false" class="nav">
 <div class="logo"><img src="logo.png" alt="Минибары" class="sidebar-logo" style="padding-right:10px;"><span>Минибары</span></div>
+
+<?php if (in_array('excise', $user_tabs)): ?>
 <div class="nav-item active" data-tab="accises"><i class="fas fa-file-invoice"></i><span>Акцизы</span></div>
+<?php endif; ?>
+
+<?php if (in_array('depatchers', $user_tabs)): ?>
 <div class="nav-item" data-tab="dispatchers"><i class="fas fa-file-pdf"></i><span>Депатчеры</span></div>
+<?php endif; ?>
+
+<?php if (in_array('deadlines', $user_tabs)): ?>
 <div class="nav-item" data-tab="sroki"><i class="fas fa-door-closed"></i><span>Сроки</span></div>
+<?php endif; ?>
+
+<?php if (in_array('history', $user_tabs)): ?>
 <div class="nav-item" data-tab="history"><i class="fas fa-history"></i><span>История</span></div>
+<?php endif; ?>
+
+<?php if (in_array('gih', $user_tabs)): ?>
 <div class="nav-item" data-tab="gih"><i class="fas fa-users"></i><span>GIH</span></div>
+<?php endif; ?>
+
 <div class="nav-separator"></div>
 <!-- ADDED: extra desktop tabs (above connection status) -->
+
+<?php if (in_array('empty', $user_tabs)): ?>
 <div class="nav-item extra" data-tab="emptied"><i class="fas fa-box-open"></i><span>Пустые</span></div>
+<?php endif; ?>
+
+<?php if (in_array('calculator', $user_tabs)): ?>
 <div class="nav-item extra" data-tab="calculator"><i class="fas fa-calculator"></i><span>Калькулятор</span></div>
+<?php endif; ?>
+
+<?php if (in_array('education', $user_tabs)): ?>
 <div class="nav-item extra" data-tab="learning"><i class="fas fa-book-open"></i><span>Обучение</span></div>
+<?php endif; ?>
+
+<?php if (in_array('settings', $user_tabs)): ?>
 <div class="nav-item extra" data-tab="settings"><i class="fas fa-cog"></i><span>Настройки</span></div>
+<?php endif; ?>
+
+<div class="nav-item extra logout-item" data-tab="logout" onclick="event.stopPropagation(); if(confirm('Вы уверены, что хотите выйти?')) { window.location.href='logout.php'; }" style="cursor: pointer;">
+    <i class="fas fa-sign-out-alt"></i>
+    <span style="color: #6c757d;">Выйти</span>
+</div>
+
 <div class="nav-separator"></div>
 <!-- Desktop connection status -->
 <div class="connection-status disconnected" id="connectionStatus">
 <span class="dot"></span>
 <span class="text">Соединение...</span>
+
+<?php if (in_array('excise_input', $user_tabs)): ?>
 </div><div id="accise-input-container" style="margin-top:12px; display:flex; gap:10px; align-items:center;"><input class="input" id="new-accise" placeholder="Введите акциз ..."/></div>
+<?php endif; ?>
+
 </nav>
 <main class="content" id="main-content">
 <!-- ADDED: Mobile top header (burger + sync) -->
@@ -2930,10 +2981,10 @@ min-height: 18px;
 <div style="margin-top:15px;">
 <div style="display: flex; gap: 12px; margin-bottom: 20px;">
     <button class="btn" id="export-database-btn">
-        <i class="fas fa-download"></i> Экспорт БД
+        <i class="fas fa-upload"></i> Экспорт БД
     </button>
     <button class="btn ghost" id="import-database-btn">
-        <i class="fas fa-upload"></i> Импорт БД
+        <i class="fas fa-download"></i> Импорт БД
     </button>
 </div>
 
@@ -6278,11 +6329,23 @@ saveBtn.addEventListener('click', () => {
     cleanupOldGIHRecords();
     scheduleGIHDailyCleanup();
 
-    const activeTop = document.querySelector('.nav-item.active')?.dataset?.tab || 'accises';
-    syncBottomNav(activeTop);
+    // const activeTop = document.querySelector('.nav-item.active')?.dataset?.tab || 'accises';
+    // syncBottomNav(activeTop);
     
     // Инициализируем правильное отображение активной вкладки
-    showTab(activeTop);
+    // showTab(activeTop);
+
+
+    // скрываем все вкладки
+    document.querySelectorAll('[id$="-section"]').forEach(el => {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+    });
+
+    // Убираем активный класс со всех пунктов меню
+    document.querySelectorAll('.nav-item, .b-item, .mb-burger-item, [data-tab]').forEach(el => {
+        el.classList.remove('active');
+    });
     
     // Инициализируем калькулятор после правильного отображения вкладок
     initCalculator();
