@@ -1,6 +1,6 @@
 {
     "super": {
-        "password": "vXEUtBH7NqOgJs9dqaQyNzo6M2o1c2VjQTB3Njd1VVArbnk3N0tBZz09",
+        "password": "OVwjs\/E57DQ8leVDuNAg6Do6WURYVUxJOGxLUjRvaDlFVnNQSDRNUT09",
         "access": [
             "excise",
             "depatchers",
@@ -15,7 +15,7 @@
         ]
     },
     "test1": {
-        "password": "hK8ci62WmzCp4pyx+2\/ixDo6UEJuWGdVNDd3YzcrbkErMmRkczZ1UT09",
+        "password": "lMJ+KW\/9dC2\/Vc7dKxcdcTo6Z3B6cmFOQjhUWFVNUUZteGNUR2FjZz09",
         "access": [
             "excise",
             "depatchers",
@@ -25,7 +25,7 @@
         ]
     },
     "test2": {
-        "password": "RLj0QhtPVWOTlZPZ\/73pxDo6dURoRHFsWGViUzZLeit3MFBVNmRVUT09",
+        "password": "v3NsU4\/SJ85bTtBzwYkVrTo6TjRzQ0RBWlhDcFdnczhDK0prQUFSUT09",
         "access": [
             "empty",
             "calculator",
@@ -35,7 +35,7 @@
         ]
     },
     "test0": {
-        "password": "86ynyy421zPGI04loh8O6zo6R2xvUHZzci9PZWZUd0ovSnY4VmtxZz09",
+        "password": "\/mXu+gSd8pbEcuyB8tuOYDo6UUVOYWRYNTVyZms5UFRCRFVhRjFyZz09",
         "access": []
     }
 }

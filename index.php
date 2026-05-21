@@ -1,11 +1,33 @@
 <?php
 session_start();
+
+if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+    if (isset($_SESSION['user'])) {
+        $_SESSION['last_activity'] = time();
+        session_write_close();
+    }
+    exit;
+}
+
+$timeout = 1 * 60 * 60;
+
+if (isset($_SESSION['last_activity']) && isset($_SESSION['user'])) {
+    if (time() - $_SESSION['last_activity'] > $timeout) {
+        $_SESSION = array();
+        session_destroy();
+        header('Location: login.php');
+        exit;
+    }
+    // Обновляем время только если сессия активна
+    $_SESSION['last_activity'] = time();
+}
+
 if (!isset($_SESSION['user'])) {
     header('Location: login.php');
     exit;
 }
+
 $user_tabs = $_SESSION['access'];
-//$active_tab = null;
 ?>
 
 <!DOCTYPE html>
@@ -11755,6 +11777,86 @@ function escapeHtml(str) {
 </script>
 </div>
 <div class="bottom-line"></div>
+
+<div id="session-warning" style="display: none; position: fixed; bottom: 20px; right: 20px; background: #407850; color: white; border-radius: 10px; overflow: hidden; z-index: 10000; min-width: 200px; width: 200px; height: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+    <div style="padding: 15px 20px;">
+        <div>⚠️ Сессия истечёт</div>
+        <div>из-за неактивности</div>
+        <div>через <span id="session-time">5:00</span></div>
+    </div>
+    <div id="session-progress" style="height: 4px; background: rgba(255,255,255,0.5); width: 100%;"></div>
+</div>
+
+<script>
+const TOTAL_TIME = 1 * 60 * 60;
+const WARNING_TIME = 55 * 60;
+
+let warningTimer = null;
+let countdownInterval = null;
+let warningShown = false;
+
+function updateServerActivity() {
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    }).catch(e => console.log('Ошибка'));
+}
+
+function showWarning() {
+    if (warningShown) return;
+    warningShown = true;
+    
+    const warning = document.getElementById('session-warning');
+    if (warning) warning.style.display = 'block';
+    
+    let seconds = TOTAL_TIME - WARNING_TIME;
+    const timeSpan = document.getElementById('session-time');
+    const progressBar = document.getElementById('session-progress');
+    
+    if (countdownInterval) clearInterval(countdownInterval);
+    
+    countdownInterval = setInterval(() => {
+        seconds--;
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        if (timeSpan) timeSpan.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        
+        if (progressBar) {
+            const percent = (seconds / (TOTAL_TIME - WARNING_TIME)) * 100;
+            progressBar.style.width = Math.max(0, percent) + '%';
+        }
+        
+        if (seconds <= 0) {
+            clearInterval(countdownInterval);
+            window.location.href = 'login.php';
+        }
+    }, 1000);
+}
+
+function resetWarning() {
+    if (warningShown) {
+        const warning = document.getElementById('session-warning');
+        if (warning) warning.style.display = 'none';
+        warningShown = false;
+    }
+    if (countdownInterval) clearInterval(countdownInterval);
+    if (warningTimer) clearTimeout(warningTimer);
+    
+    warningTimer = setTimeout(showWarning, WARNING_TIME * 1000);
+}
+
+// При любом действии пользователя
+const resetEvents = ['click', 'keydown', 'mousemove', 'scroll', 'touchstart'];
+resetEvents.forEach(event => {
+    document.addEventListener(event, () => {
+        resetWarning();
+        updateServerActivity();
+    });
+});
+
+// Запускаем
+resetWarning();
+</script>
 </body>
 </html>
 
