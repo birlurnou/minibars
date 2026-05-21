@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+require_once '../admin/encryption_key.php';
+
 $users = json_decode(file_get_contents('../config/users.json'), true);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -10,7 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($users[$login])) {
 
         // if (password_verify($password, $users[$login]['password'])) {
-        if ($password === $users[$login]['password']) {
+        $stored_password = decryptPassword($users[$login]['password']);
+        if ($password === $stored_password) {
             $_SESSION['user'] = $login;
             $_SESSION['access'] = $users[$login]['access'];
             header('Location: index.php');
@@ -37,12 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: url('bg.jpg') no-repeat center center fixed;
+            background-size: cover;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
         }
 
         .login-container {
@@ -55,6 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 20px;
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                background: url('bg.jpg') no-repeat center center fixed;
+                background-size: cover;
+            }
         }
 
         .login-header {
