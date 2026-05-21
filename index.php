@@ -9,7 +9,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'
     exit;
 }
 
-$timeout = 1 * 60 * 60;
+$timeout = 1 * 60 * 60; // 1 * 60 * 60
 
 if (isset($_SESSION['last_activity']) && isset($_SESSION['user'])) {
     if (time() - $_SESSION['last_activity'] > $timeout) {
@@ -11788,13 +11788,30 @@ function escapeHtml(str) {
 </div>
 
 <script>
-const TOTAL_TIME = 1 * 60 * 60;
-const WARNING_TIME = 55 * 60;
+// Константы (должны совпадать с PHP)
+const TOTAL_TIME = 1 * 60 * 60; // 1 * 60 * 60
+const WARNING_TIME = 5 * 60; // 5 * 60
 
 let warningTimer = null;
 let countdownInterval = null;
 let warningShown = false;
 
+// Функция для получения оставшегося времени с сервера
+async function getRemainingTime() {
+    try {
+        const response = await fetch('session_time.php', {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await response.json();
+        return data.remaining_seconds;
+    } catch (error) {
+        console.log('Ошибка получения времени:', error);
+        return TOTAL_TIME;
+    }
+}
+
+// Обновление активности на сервере
 function updateServerActivity() {
     fetch(window.location.href, {
         method: 'POST',
@@ -11802,14 +11819,15 @@ function updateServerActivity() {
     }).catch(e => console.log('Ошибка'));
 }
 
-function showWarning() {
+// Показать предупреждение
+function showWarning(remainingSeconds) {
     if (warningShown) return;
     warningShown = true;
     
     const warning = document.getElementById('session-warning');
     if (warning) warning.style.display = 'block';
     
-    let seconds = TOTAL_TIME - WARNING_TIME;
+    let seconds = remainingSeconds;
     const timeSpan = document.getElementById('session-time');
     const progressBar = document.getElementById('session-progress');
     
@@ -11822,7 +11840,7 @@ function showWarning() {
         if (timeSpan) timeSpan.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
         
         if (progressBar) {
-            const percent = (seconds / (TOTAL_TIME - WARNING_TIME)) * 100;
+            const percent = (seconds / remainingSeconds) * 100;
             progressBar.style.width = Math.max(0, percent) + '%';
         }
         
@@ -11833,6 +11851,7 @@ function showWarning() {
     }, 1000);
 }
 
+// Сброс таймера (вызывается при активности пользователя)
 function resetWarning() {
     if (warningShown) {
         const warning = document.getElementById('session-warning');
@@ -11842,7 +11861,27 @@ function resetWarning() {
     if (countdownInterval) clearInterval(countdownInterval);
     if (warningTimer) clearTimeout(warningTimer);
     
-    warningTimer = setTimeout(showWarning, WARNING_TIME * 1000);
+    // Обновляем активность на сервере
+    updateServerActivity();
+    
+    // Перезапускаем проверку
+    scheduleWarning();
+}
+
+// Планируем показ предупреждения
+async function scheduleWarning() {
+    const remainingSeconds = await getRemainingTime();
+    
+    // Если осталось меньше WARNING_TIME - показываем сразу
+    if (remainingSeconds <= WARNING_TIME && remainingSeconds > 0) {
+        showWarning(remainingSeconds);
+    } else if (remainingSeconds > 0) {
+        // Иначе показываем через (remainingSeconds - WARNING_TIME) секунд
+        const delay = (remainingSeconds - WARNING_TIME) * 1000;
+        warningTimer = setTimeout(() => {
+            showWarning(WARNING_TIME);
+        }, delay);
+    }
 }
 
 // При любом действии пользователя
@@ -11850,12 +11889,19 @@ const resetEvents = ['click', 'keydown', 'mousemove', 'scroll', 'touchstart'];
 resetEvents.forEach(event => {
     document.addEventListener(event, () => {
         resetWarning();
-        updateServerActivity();
     });
 });
 
-// Запускаем
-resetWarning();
+// Запускаем проверку сессии каждые 10 секунд (на случай, если сессия умерла на сервере)
+setInterval(async () => {
+    const remaining = await getRemainingTime();
+    if (remaining <= 0) {
+        window.location.href = 'login.php';
+    }
+}, 10000);
+
+// Первоначальный запуск
+scheduleWarning();
 </script>
 </body>
 </html>
