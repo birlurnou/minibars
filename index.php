@@ -2914,10 +2914,23 @@ min-height: 18px;
 <!-- сюда перенесём #mobileConnectionIndicator на мобильной ширине -->
 </div>
 <div class="mb-burger-menu" id="mbBurgerMenu" role="menu">
+
+    <?php if (in_array('empty', $user_tabs)): ?>
     <div class="mb-burger-item" data-tab="emptied"><i class="fas fa-box-open"></i><span>Пустые</span></div>
+    <?php endif; ?>
+
+    <?php if (in_array('calculator', $user_tabs)): ?>
     <div class="mb-burger-item" data-tab="calculator"><i class="fas fa-calculator"></i><span>Калькулятор</span></div>
+    <?php endif; ?>
+
+    <?php if (in_array('education', $user_tabs)): ?>
     <div class="mb-burger-item" data-tab="learning"><i class="fas fa-book-open"></i><span>Обучение</span></div>
+    <?php endif; ?>
+
+    <?php if (in_array('settings', $user_tabs)): ?>
     <div class="mb-burger-item" data-tab="settings"><i class="fas fa-cog"></i><span>Настройки</span></div>
+    <?php endif; ?>
+
 </div>
 </div>
 <div class="card" id="accises-section">
@@ -3202,11 +3215,28 @@ min-height: 18px;
 <div aria-hidden="true" class="bottom-nav" id="bottomNav">
 <!-- Mobile connection indicator -->
 <div class="mobile-connection-indicator disconnected" id="mobileConnectionIndicator"></div>
+
+<?php if (in_array('excise', $user_tabs)): ?>
 <div class="b-item active" data-tab="accises" title="Акцизы"><i class="fas fa-file-invoice"></i><div class="b-label">Акцизы</div></div>
+<?php endif; ?>
+
+<?php if (in_array('depatchers', $user_tabs)): ?>
 <div class="b-item desktop-only" data-tab="dispatchers" title="Депатчеры"><i class="fas fa-list"></i><div class="b-label">Депатчеры</div></div>
+<?php endif; ?>
+
+<?php if (in_array('deadlines', $user_tabs)): ?>
 <div class="b-item" data-tab="sroki" title="Сроки"><i class="fas fa-door-closed"></i><div class="b-label">Сроки</div></div>
+<?php endif; ?>
+
+<?php if (in_array('history', $user_tabs)): ?>
 <div class="b-item" data-tab="history" title="История"><i class="fas fa-history"></i><div class="b-label">История</div></div>
+<?php endif; ?>
+
+<?php if (in_array('gih', $user_tabs)): ?>
 <div class="b-item" data-tab="gih" title="GIH"><i class="fas fa-users"></i><div class="b-label">GIH</div></div>
+<?php endif; ?>
+
+
 </div>
 <!-- Modal (rooms) -->
 <div aria-hidden="true" class="overlay" id="modal">
